@@ -10,6 +10,12 @@ Name        Root
 -----------------------
 dearbnb     C:\Users\uranusjr\Documents\programming\dearbnb
 tej-jet     C:\Users\uranusjr\Documents\programming\tej-jet
+
+$ docker-campus show tej-jet
+      Name                     Command              State            Ports
+-----------------------------------------------------------------------------------
+tej-jet_db_1        docker-entrypoint.sh postgres   Up      0.0.0.0:32769->5432/tcp
+tej-jet_service_1   python -m tejjet.serve          Up      0.0.0.0:8000->8000/tcp
 ```
 
 `docker-campus add <name> <root>` adds a new project.

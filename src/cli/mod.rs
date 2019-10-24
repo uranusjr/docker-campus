@@ -1,9 +1,12 @@
+use std::collections::HashSet;
+use std::iter::FromIterator;
 use std::path::PathBuf;
 
 use clap::{App, ArgMatches};
-use prettytable::{format, Table};
 
 use crate::conf::Configuration;
+
+mod show;
 
 pub fn app<'a, 'b>() -> App<'a, 'b> {
     clap_app!(app =>
@@ -18,13 +21,17 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
         )
         (@subcommand remove =>
             (about: "Removes a project from management")
+            (alias: "rm")
             (@arg name: +required "name of project")
         )
-        (@subcommand list =>
-            (about: "Lists managed projects")
+        (@subcommand show =>
+            (about: "Show status of managed projects")
+            (@arg names: ... "filter projects to display")
+            (@arg list: --list "only list project name and roots")
         )
         (@subcommand compose =>
             (about: "Runs a docker-compose command on a project")
+            (alias: "c")
             (@arg project: +required "name of project")
             (@arg command: +required "command to run")
             (@arg args: ... "arguments passed to command")
@@ -47,19 +54,12 @@ pub fn dispatch(app_matches: &ArgMatches) {
             configuration.remove_project(name);
             configuration.persist();
         },
-        ("list", _) => {
-            if configuration.project_len() < 1 {
-                println!("No projects. Use `add` to add some");
-            } else {
-                let mut table = Table::new();
-                table.set_format(
-                    *format::consts::FORMAT_NO_BORDER_LINE_SEPARATOR);
-                table.set_titles(row!["Name", "Root"]);
-                for p in configuration.projects() {
-                    table.add_row(row![p.name(), p.root().to_string_lossy()]);
-                }
-                table.printstd();
-            }
+        ("show", Some(matches)) => {
+            let names = matches.values_of("names").map(|v| {
+                HashSet::from_iter(v.into_iter())
+            });
+            let as_list = matches.is_present("list");
+            show::run(&configuration, names, as_list);
         },
         ("compose", Some(matches)) => {
             let project = matches.value_of("project").unwrap();

@@ -29,10 +29,12 @@ impl Project {
         self.root = path.into();
     }
 
-    pub fn compose(&self, command: &str, args: Vec<&str>) {
+    pub fn compose<'a, I>(&self, command: &str, args: I)
+        where I: IntoIterator<Item = &'a str>
+    {
         let returncode = Command::new("docker-compose")
             .arg(command)
-            .args(&args)
+            .args(args)
             .current_dir(&self.root)
             .spawn()
             .expect("failed to execute docker-compose")

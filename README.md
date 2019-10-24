@@ -5,7 +5,7 @@
 ### Listing
 
 ```
-$ docker-campus list
+$ docker-campus show --list
 Name        Root
 -----------------------
 dearbnb     C:\Users\uranusjr\Documents\programming\dearbnb

@@ -34,10 +34,6 @@ impl Configuration {
         file.write_all(toml::to_string(self).unwrap().as_bytes()).unwrap();
     }
 
-    pub fn project_len(&self) -> usize {
-        self.projects.len()
-    }
-
     pub fn projects(&self) -> Iter<Project> {
         self.projects.iter()
     }

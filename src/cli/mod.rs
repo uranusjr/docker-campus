@@ -56,7 +56,7 @@ pub fn dispatch(app_matches: &ArgMatches) {
         },
         ("show", Some(matches)) => {
             let names = matches.values_of("names").map(|v| {
-                HashSet::from_iter(v.into_iter())
+                HashSet::from_iter(v)
             });
             let as_list = matches.is_present("list");
             show::run(&configuration, names, as_list);
@@ -66,7 +66,7 @@ pub fn dispatch(app_matches: &ArgMatches) {
             let command = matches.value_of("command").unwrap();
             let args = matches.values_of("args")
                 .map(|v| v.collect())
-                .unwrap_or(vec![]);
+                .unwrap_or_else(|| vec![]);
             configuration.project(project).unwrap().compose(command, args);
         },
 

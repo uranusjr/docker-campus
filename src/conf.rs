@@ -64,5 +64,5 @@ impl Configuration {
 
 fn configuration_path() -> PathBuf {
     let dirs = ProjectDirs::from("", "", crate_name!()).unwrap();
-    dirs.data_dir().join("campus.toml").to_owned()
+    dirs.data_dir().join("campus.toml")
 }

@@ -35,6 +35,6 @@ pub fn run(
             println!("* {} ({})", p.name(), p.root().display());
         }
         p.compose("ps", empty());
-        println!("");
+        println!();
     }
 }

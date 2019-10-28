@@ -34,9 +34,36 @@ pub fn app<'a, 'b>() -> App<'a, 'b> {
             (alias: "c")
             (@arg project: +required "name of project")
             (@arg command: +required "command to run")
-            (@arg args: ... "arguments passed to command")
+            (@arg args: +allow_hyphen_values ...
+                "arguments for docker-compose")
+        )
+        (@subcommand start =>
+            (about: "Runs docker-compose start on a project")
+            (@arg project: +required "name of project")
+            (@arg args: +allow_hyphen_values ...
+                "additional arguments for docker-compose")
+        )
+        (@subcommand stop =>
+            (about: "Runs docker-compose stop on a project")
+            (@arg project: +required "name of project")
+            (@arg args: +allow_hyphen_values ...
+                "additional arguments for docker-compose")
         )
     )
+}
+
+macro_rules! compose {
+    ($configuration: expr, $matches: expr) => {
+        let command = $matches.value_of("command").unwrap();
+        compose!(command, $configuration, $matches);
+    };
+    ($command: expr, $configuration: expr, $matches: expr) => {
+        let project = $matches.value_of("project").unwrap();
+        let args = $matches.values_of("args")
+            .map(|v| v.collect())
+            .unwrap_or_else(|| vec![]);
+        $configuration.project(project).unwrap().compose($command, args);
+    };
 }
 
 pub fn dispatch(app_matches: &ArgMatches) {
@@ -62,12 +89,13 @@ pub fn dispatch(app_matches: &ArgMatches) {
             show::run(&configuration, names, as_list);
         },
         ("compose", Some(matches)) => {
-            let project = matches.value_of("project").unwrap();
-            let command = matches.value_of("command").unwrap();
-            let args = matches.values_of("args")
-                .map(|v| v.collect())
-                .unwrap_or_else(|| vec![]);
-            configuration.project(project).unwrap().compose(command, args);
+            compose!(configuration, matches);
+        },
+        ("start", Some(matches)) => {
+            compose!("start", configuration, matches);
+        },
+        ("stop", Some(matches)) => {
+            compose!("stop", configuration, matches);
         },
 
         _ => { panic!("should not happen"); },
